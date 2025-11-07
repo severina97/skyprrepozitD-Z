@@ -30,6 +30,16 @@ def test_trim_positive_tabs():
     """Проверка обрезки табуляции"""
     assert string_utils.trim("\tтекст\t") == "текст"
 
+
+def test_delete_symbol_positive_single_char():
+    """Удаление одного символа"""
+    assert string_utils.delete_symbol("SkyPro", "k") == "SyPro"
+
+
+def test_contains_positive_true():
+    """Проверка: символ присутствует в строке"""
+    assert string_utils.contains("SkyPro", "S") is True
+
 # Негативные сценарии
 
 
@@ -52,3 +62,13 @@ def test_negative_none_value():
     """Проверка передачи None"""
     with pytest.raises(TypeError):
         string_utils.capitalize(None)
+
+
+def test_delete_symbol_negative_not_found():
+    """Проверка: если символа нет, строка не изменяется"""
+    assert string_utils.delete_symbol("SkyPro", "X") == "SkyPro"
+
+
+def test_contains_negative_empty_string():
+    """Проверка: пустая строка всегда возвращает False"""
+    assert string_utils.contains("", "a") is False
