@@ -5,8 +5,13 @@ from pages.inventory_page import InventoryPage
 from pages.cart_page import CartPage
 from pages.checkout_page import CheckoutPage
 
+
 def test_saucedemo_checkout():
-    driver = webdriver.Chrome()
+    # Настройка Chrome для режима инкогнито
+    options = webdriver.ChromeOptions()
+    options.add_argument("--incognito")
+
+    driver = webdriver.Chrome(options=options)
     driver.get("https://www.saucedemo.com/")
 
     login = LoginPage(driver)
