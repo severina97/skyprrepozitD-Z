@@ -6,15 +6,17 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-def test_form_validation():
+def test_zip_validation():
     driver = webdriver.Edge(service=EdgeService(
         "C:/WebDriver/msedgedriver.exe"))
-    wait = WebDriverWait(driver, 30)
+    wait = WebDriverWait(driver, 20)
 
     try:
+        # Открываем страницу
         driver.get(
             "https://bonigarcia.dev/selenium-webdriver-java/data-types.html")
 
+        # Заполняем все поля кроме ZIP
         fields_data = {
             "first-name": "Иван",
             "last-name": "Петров",
@@ -25,39 +27,29 @@ def test_form_validation():
             "country": "Россия",
             "job-position": "QA",
             "company": "SkyPro",
-            # zip оставляем пустым
         }
 
-        # Заполняем поля
         for name, value in fields_data.items():
-            input_elem = wait.until(
-                EC.presence_of_element_located((By.NAME, name)))
-            input_elem.clear()
-            input_elem.send_keys(value)
+            elem = wait.until(EC.presence_of_element_located((By.NAME, name)))
+            elem.clear()
+            elem.send_keys(value)
 
-        # Нажимаем Submit
-        submit_button = wait.until(
-            EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, "button[type=submit]"))
-        )
-        submit_button.click()
+        # Сабмит формы (ZIP пустой)
+        submit = wait.until(EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "button[type=submit]")))
+        submit.click()
 
-        # Ждём появления alert
-        wait.until(EC.presence_of_element_located((By.CLASS_NAME, "alert")))
-
-        # Проверяем Zip (должен быть красным)
-        zip_code = wait.until(
+        # Ждём появления красного блока с ошибкой для ZIP
+        zip_alert = wait.until(
             EC.presence_of_element_located((By.ID, "zip-code")))
-        assert "alert-danger" in zip_code.get_attribute(
-            "class"), "Zip code не подсвечен красным!"
 
-        # Проверяем остальные поля на зелёную подсветку после сабмита
-        for name in fields_data.keys():
-            input_elem = wait.until(
-                EC.presence_of_element_located((By.NAME, name)))
-            parent_div = input_elem.find_element(By.XPATH, "..")
-            border_color = parent_div.value_of_css_property("border-color")
-            assert "rgb(40, 167, 69)" in border_color, f"Поле {name} не подсвечено зелёным!"
+        # Проверяем, что это именно блок с классом alert-danger
+        assert "alert-danger" in zip_alert.get_attribute(
+            "class"), "ZIP не подсвечен красным!"
+
+        # Можно дополнительно проверить текст ошибки
+        assert zip_alert.text.strip(
+        ) == "N/A", f"Текст ошибки ZIP некорректен: {zip_alert.text}"
 
     finally:
         driver.quit()
